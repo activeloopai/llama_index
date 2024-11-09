@@ -4,7 +4,7 @@ An index that is built within DeepLake.
 
 """
 import logging
-from typing import Any, List, Optional, cast
+from typing import Any, Callable, Dict, Iterable, List, Optional, Union, cast
 
 from llama_index.schema import BaseNode, MetadataMode
 from llama_index.vector_stores.types import VectorStore as VectorStoreBase
@@ -28,7 +28,6 @@ try:
             def __init__(
                 self,
                 path: str,
-                embedding_function: Optional[Embeddings] = None,
                 read_only: bool = False,
                 token: Optional[str] = None,
                 exec_option: Optional[str] = None,
@@ -43,7 +42,6 @@ try:
                         "Please install it with `pip install deeplake[enterprise]`."
                     )
                 self.path = path
-                self.embedding_function = embedding_function
                 self.read_only = read_only
                 self.token = token
                 self.exec_options = exec_option
@@ -192,9 +190,9 @@ try:
                 self.ds.add_column("id", deeplake.types.Text)
                 self.ds.commit()
 
-    DEEPLAKE_INSTALLED = True
+    _DEEPLAKE_INSTALLED = True
 except ImportError:
-    DEEPLAKE_INSTALLED = False
+    _DEEPLAKE_INSTALLED = False
 
 logger = logging.getLogger(__name__)
 
@@ -267,7 +265,7 @@ class DeepLakeVectorStore(VectorStoreBase):
         self.read_only = read_only
         self.dataset_path = dataset_path
 
-        if not DEEPLAKE_INSTALLED:
+        if not _DEEPLAKE_INSTALLED:
             raise ImportError(
                 "Could not import deeplake python package. "
                 "Please install it with `pip install deeplake`."
